@@ -1,1 +1,25 @@
+import random
+
+def lotto(numbers):
+    result = []
+    for i in range(6):
+        index = random.randint(0, 44 - i)
+        result.append(numbers[index])
+        # Tauschen, um doppelte Ziehungen zu vermeiden
+        numbers[index], numbers[44 - i] = numbers[44 - i], numbers[index]
+    return result
+
+def update_results(result, results):
+    for number in result:
+        results[number] += 1
+
+if __name__ == '__main__':
+    numbers = list(range(45))
+    results = {i: 0 for i in range(45)}
+    
+    for _ in range(1000):
+        drawn_numbers = lotto(numbers.copy()) 
+        update_results(drawn_numbers, results)
+
+    print(results)
 
