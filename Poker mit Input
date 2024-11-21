@@ -1,0 +1,103 @@
+import random
+from collections import Counter
+
+
+WERTE = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14']
+FARBEN = ['Kreuz', 'Pik', 'Herz', 'Karo']
+
+
+def generiere_deck():
+    return [(wert, farbe) for wert in WERTE for farbe in FARBEN]
+
+
+def bewerten(hand):
+    if len(hand) != 5:
+        raise ValueError("Eine Pokerhand muss genau 5 Karten enthalten.")
+    werte_only = [karte[0] for karte in hand]
+    farben_only = [karte[1] for karte in hand]
+    wert_counts = Counter(werte_only)
+    ist_flush = len(set(farben_only)) == 1
+    werte_sortiert = sorted(int(wert) for wert in werte_only)
+    ist_straight = werte_sortiert == list(range(werte_sortiert[0], werte_sortiert[0] + 5))
+
+    if ist_flush and sorted(werte_only) == ['10', '11', '12', '13', '14']:
+        return "Royal Flush"
+    elif ist_flush and ist_straight:
+        return "Straight Flush"
+    elif 4 in wert_counts.values():
+        return "Four of a Kind"
+    elif 3 in wert_counts.values() and 2 in wert_counts.values():
+        return "Full House"
+    elif ist_flush:
+        return "Flush"
+    elif ist_straight:
+        return "Straight"
+    elif 3 in wert_counts.values():
+        return "Three of a Kind"
+    elif list(wert_counts.values()).count(2) == 2:
+        return "Two Pair"
+    elif 2 in wert_counts.values():
+        return "One Pair"
+    else:
+        return "High Card"
+
+
+def simuliere_spiele(anzahl_spiele, deck):
+    if anzahl_spiele <= 0:
+        raise ValueError("Die Anzahl der Spiele muss größer als 0 sein.")
+
+    haende = {
+        "High Card": 0,
+        "One Pair": 0,
+        "Two Pair": 0,
+        "Three of a Kind": 0,
+        "Straight": 0,
+        "Flush": 0,
+        "Full House": 0,
+        "Four of a Kind": 0,
+        "Straight Flush": 0,
+        "Royal Flush": 0
+    }
+
+    for _ in range(anzahl_spiele):
+        hand = random.sample(deck, 5)
+        hand_typ = bewerten(hand)
+        haende[hand_typ] += 1
+
+    return haende
+
+
+def ausgabe_ergebnisse(haende, anzahl_spiele):
+    for hand_typ, anzahl in haende.items():
+        prozent = (anzahl / anzahl_spiele) * 100
+        print(f"{hand_typ}: {prozent:.2f}%")
+
+1
+def main():
+    while True:
+        print("\nPoker-Simulation Menü:")
+        print("1. Spiele simulieren")
+        print("2. Beenden")
+
+        try:
+            auswahl = input("Bitte wähle eine Option (1-2): ")
+            if auswahl == "1":
+                try:
+                    anzahl_spiele = int(input("Wie viele Poker-Spiele sollen simuliert werden? "))
+                    deck = generiere_deck()
+                    haende = simuliere_spiele(anzahl_spiele, deck)
+                    ausgabe_ergebnisse(haende, anzahl_spiele)
+                except ValueError as e:
+                    print(f"Ungültige Eingabe: {e}")
+
+            elif auswahl == "2":
+                print("Programm wird beendet. Vielen Dank!")
+                break
+            else:
+                raise ValueError("Ungültige Auswahl. Bitte wähle eine Option > 1")
+        except ValueError as e:
+            print(f"Fehler: {e}")
+
+
+if __name__ == "__main__":
+    main()
